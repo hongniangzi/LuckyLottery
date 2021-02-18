@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>长沙市工业系统军民融合专家随机抽取系统</title>
+    <link rel="stylesheet" href="__CSS__/style.css"/>
+    <link rel="stylesheet" href="__CSS__/animate.css"/>
+    <!-- <script type="text/javascript" src="__ADMINJS__/jquery-1.11.3.min.js"></script> -->
+    <!-- <script src="__JS__/jquery-3.4.1.min.js"></script> -->
+    <script src="__JS__/jquery-1.4.4.min.js"></script>
+    <script src="__JS__/lib/common.js"></script>
+    <script src="__JS__/index.js"></script>
+</head>
+<body>
+<div class="main-bg">
+    <header>
+        <div></div>
+    </header>
+    <section>
+        <div class="hide" id="luckyDrawing"><input id="showName" readonly type="text"></div>
+        <div class="hide" id="result">
+            <div></div>
+        </div>
+        <div class="lists">
+            <h2>抽取专家名单</h2>
+            <ul>
+                {assign name="num" value="0"/}
+                {volist name="inPump" id="pump_val"}
+                <li class="pump-num">-----------------第{$key+1}次抽取----------------</li>
+                    {volist name="pump_val" id="doc"}
+                    {assign name="num" value="$num+1"/}
+                    <li class="in-pump-num"><p style="line-height: 22px;">{$num}. {$doc.username}&nbsp;&nbsp;&nbsp;{$doc.phone}<br/>&nbsp;&nbsp;&nbsp;&nbsp;{$doc.profession}&nbsp;&nbsp;&nbsp;{$doc.unit}</p></li>
+                    {/volist}
+                {/volist}
+            </ul>
+            <div class="inbtn-print layer-btn" data-method="btnPrint" style="display:none;">打印</div>
+        </div>
+    </section>
+    <footer>
+        <div>
+            <input type="number" id="txtNum" value="" placeholder="请输入抽取人数">
+            <button class="layer-btn" data-method="btnStart" id="btnStart">开始</button> 
+            <button class="layer-btn" data-method="btnReset" id="btnReset">清空全部</button>
+        </div>
+    </footer>
+
+</div>
+<div id="bgLuckyDrawEnd"></div>
+</body>
+<script src="__JS__/parmies-ajax.js"></script>
+<script src="__JS__/layui/layui.js"></script>
+<script src="__JS__/jquery.jqprint-0.3.js"></script>
+<script>
+    if($('.lists ul>li')){
+        $('.lists .inbtn-print').css('display','block');
+    }
+    layui.use(['layer'], function(){
+        const layer = layui.layer;
+
+        var action = {
+            // 打印
+            btnPrint:function(){ 
+                // $('.lists ul').css('overflow-y','');
+                // $(this).css('display','none');
+                // setTimeout(function(){
+                //     $('.lists ul').attr('style','height: 320px;overflow-y: scroll; margin-bottom: 10px;');
+                //     $(this).css('display','block');
+                // }.bind(this))
+
+                $(".lists").jqprint();
+            },
+            btnStart:function(){
+                $(this).attr('disabled','true');
+                if ($("#btnStart").text() === "开始") {
+                    if (!$("#txtNum").val()) {
+                        $(this).attr('disabled',false);
+                        showDialog("请输入抽取人数");
+                        return false;
+                    }
+                    if ($("#txtNum").val() > 49) {
+                        $(this).attr('disabled',false);
+                        showDialog("一次最多只能输入49人");
+                        return false;
+                    }
+                    if ($("#txtNum").val() > remainPerson.length) {
+                        $(this).attr('disabled',false);
+                        showDialog("当前抽取人数大于抽取池总人数<br>当前抽取人数：<b>" + $("#txtNum").val() + "</b>人,抽取池人数：<b>" + remainPerson.length + "</b>人");
+                        return false;
+                    }
+                    $("#btnStart").text("停止");
+                    $("#result").fadeOut();
+                    //显示动画框，隐藏中奖框
+                    $("#luckyDrawing").show().next().addClass("hide");
+                    move();
+                    $(this).attr('disabled',false);
+                }else{
+                    $("#btnStart").text("开始");//设置按钮文本为开始
+                    $("#luckyDrawing").fadeOut();
+                    var luckyDrawNum = $("#txtNum").val();
+                    action.luckyLottery(luckyDrawNum);
+                }
+            },
+            // 抽取程序
+            luckyLottery:function(luckyDrawNum){
+                layer.load();
+                const formData = new FormData();
+                formData.set('luckyDrawNum',luckyDrawNum);
+                parimesPost("/pump",formData).then((res)=>{
+                    layer.closeAll('loading');
+                    $('.main-bg #btnStart').attr('disabled',false);
+                    clearInterval(timer);//停止输入框动画展示
+                    $("#btnStart").text("开始");
+                    $("#txtNum").val('');
+                    if(res.status==1){
+                        $('.lsits .inbtn-print').css('display',"block");
+                        $("#result").fadeIn().find("div").removeClass().addClass("p" + luckyDrawNum);//隐藏输入框，显示中奖框          
+                        $("#txtNum").attr("placeholder", "输入抽取人数(" + res.inPumpPople + ")");
+                        var tempHtml = '';
+                        var inPumpNum = $('.main-bg .lists ul .in-pump-num').length;
+                        var inPump = `<li class="pump-num">-----------------第${$('.main-bg .lists ul .pump-num').length+1}次抽取----------------</li>`;
+                        $.each(res.Msg, function (i, person) {
+                            var sizeStyle = "";
+                            if (person.length > 3) {
+                                sizeStyle = `style=font-size:"${3/person.username.length}"em`;
+                            }
+                            var phone = person.phone ? person.phone:'';
+                            var profession = person.profession ? person.profession:'';
+                            var unit = person.unit ? person.unit:'';
+                            tempHtml += `<span><span "${sizeStyle}">${person.username}</span></span>`;
+                            inPump += `<li class="in-pump-num"><p style="line-height: 22px;">${inPumpNum+i+1}. ${person.username}&nbsp;&nbsp;&nbsp;${phone}<br/>&nbsp;&nbsp;&nbsp;&nbsp;${profession}&nbsp;&nbsp;&nbsp;${unit}</p></li>`;
+                        });
+                        $("#result>div").html(tempHtml);
+                        $(".main-bg .lists ul").append(inPump);
+                    }else{
+                        showDialog(res.Msg);
+                    }
+                }).catch(e=>{
+                    layer.closeAll('loading');
+                    $('.main-bg #btnStart').attr('disabled',false);
+                    $("#btnStart").text("开始");
+                    clearInterval(timer);
+                    $("#txtNum").val('');
+                    showDialog(e);
+                })
+            },
+            // 清空抽取池
+            btnReset(){
+                window.location.href = "/closeExtractionPool";
+            },
+        };
+       
+        $('.main-bg .layer-btn').bind('click',function(){
+            const method = $(this).data('method');console.log(method);
+            action[method]? action[method].apply(this,$(this)):'';
+        })
+    })
+</script>
+</html>

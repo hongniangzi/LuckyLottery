@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>设置</title>
+	<link rel="stylesheet" type="text/css" href="__ADMINCSS__/style.css">
+	<script type="text/javascript" src="__ADMINJS__/jquery-1.11.3.min.js"></script>
+</head>
+<body>
+<div class="contbox regis-bg">
+	<div class="regis-table">
+		<div class="t">
+			<h2>抽取设置</h2>
+        </div>
+        <div class="a-list">
+            <div class="a-list-table">
+                <form id="myUserForm">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr>
+                            <td width="40">序号</td>
+                            <td>姓名</td>
+                            <td>电话</td>
+                            <td>身份证</td>
+                            <td>职称</td>
+                            <td>单位</td>
+                            <td>操作</td>
+                        </tr>
+                        {volist name="user" id="doc"}
+                        <tr class="user-tr">
+                            <td>{$i}</td>
+                            <td>{$doc.username|default='--'}</td>
+                            <td>{$doc.phone|default='--'}</td>
+                            <td>{$doc.id_card|default='--'}</td>
+                            <td>{$doc.profession|default='--'}</td>
+                            <td>{$doc.unit|default='--'}</td>
+                            <td><a href="javascript:;" data-id="{$doc.id}" data-method="delUserData" class="inbtn layer-btn">✘</a></td>
+                        </tr>
+                        {/volist}
+                        <tr>
+                            <td>-</td>
+                            <td><input type="text" name="username" class="intxt" style="width: 50px;"></td>
+                            <td><input type="text" name="phone" class="intxt" maxlength="11" style="width: 88px;"></td>
+                            <td><input type="text" name="id_card" class="intxt" maxlength="18" style="width: 160px;"></td>
+                            <td><input type="text" name="profession" class="intxt" style="width: 60px;"></td>
+                            <td><input type="text" name="unit" class="intxt" style="width: 120px;"></td>
+                            <td><a href="javascript:;" data-method="addDataUser" class="inbtn layer-btn">✔</a></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div>
+                <span class="inbtn" style="display: inline-block;position: relative;">
+                    <input type="file" style="opacity: 0;position: absolute;left: 0;top: 0;height: 40px;" id="selectExcel">导入
+                </span>
+                <span data-method="closrDataUser" class="inbtn layer-btn" style="display: inline-block;position: relative; margin-left: 30px;">清空</span>
+            </div>
+            
+        </div>
+       
+		<div class="b">
+			<form id="myProForm">
+                <div class="b-table myProForm">
+                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        {volist name="probability['pro']" id="doc"}
+                        <tr>
+                            <td>概率：
+                                <input type="hidden" name="id[]" value="{$doc.id}">
+                                <input type="text" class="intxt" value="{$doc.probability}" name="probability[]" style="width:30px">
+                                <input type="hidden" class="intxt" value="" name="def_num[]">
+                            </td>
+                            <td>身份证：
+                                <input type="text" class="intxt" value="{$doc.id_card}" name="id_card[]" maxlength="18" style="width:175px">
+                                <?php echo sprintf("%.2f", $doc['probability']/(count($user)-count($probability['pro'])+$pro_sum)*100); ?>%
+                            </td>
+                            <td><input type="text" name="name[]" value="{$doc.name}" class="intxt" style="width:70px"></td>
+                            <td><a href="javascript:;" data-id="{$doc.id}" class="inbtn layer-btn" data-method="closeBtn">✘</a></td>
+                        </tr>
+                        {/volist}
+
+                    </table>
+                </div>
+                <!-- <div class="btn-group">
+                    <a class="inbtn add-btn layer-btn" data-method="addBtn">新增</a>
+                    <div class="save">
+                        <a href="javascript:;" class="inbtn" id="proFormButton">保存</a>
+                    </div>
+                </div> -->
+                
+                <div class="b-table myDefForm" style="margin-top:30px">
+                    <table border="0" cellpadding="0" cellspacing="0" width="570">
+                        {volist name="probability['def']" id="doc"}
+                        <tr>
+                            <td>内定：
+                                <input type="hidden" name="id[]" value="{$doc.id}">
+                                <input type="text" class="intxt" value="内定" name="probability[]" style="width:30px">
+                                <input type="text" class="intxt" value="{$doc.def_num}" name="def_num[]" style="width: 20px;">
+                            </td>
+                            <td>身份证：<input type="text" class="intxt" value="{$doc.id_card}" name="id_card[]" maxlength="18" style="width:175px"></td>
+                            <td><input type="text" name="name[]" value="{$doc.name}" class="intxt" style="width:70px"></td>
+                            <td><a href="javascript:;" data-id="{$doc.id}" class="inbtn layer-btn" data-method="closeBtn">✘</a></td>
+                        </tr>
+                        {/volist}
+
+                    </table>
+                </div>
+                <div class="btn-group">
+                    <a class="inbtn add-btn layer-btn" data-method="addProBtn">新增概率</a>
+                    <a class="inbtn add-btn layer-btn" data-method="addDefBtn">新增内定</a>
+                    <div class="save">
+                        <a href="javascript:;" class="inbtn" id="proFormButton">保存</a>
+                    </div>
+                </div>
+            </form>
+		</div>
+	</div>
+</div>
+<div class="footer">
+	<p> 技术支持：蒲公英<a href="http://www.0731pgy.com/" target="_blank">长沙网站建设</a></p>
+</div>
+<style type="text/css">
+body{overflow-y: scroll;position: relative;}
+.footer{bottom: 5px;}
+.regis-table .t h2{width: 260px;}
+form .intxt{height: 35px;}
+.regis-table .b,.regis-table .a-list{display: inline-block;}
+.regis-table .a-list{float: left;}
+.regis-table .a-list .a-list-table{overflow-y: scroll;border: 1px dotted;}
+.regis-table .b{float: right;}
+.regis-table .b .b-table{overflow-y: scroll;border: 1px dotted;}
+.regis-table .b .add-btn{width: 75px;}
+.regis-table .b .save{display: inline-block;margin:0 80px;}
+.regis-table .b .btn-group{margin-left:20px;}
+
+</style>
+<script src="__ADMINJS__/jquery-3.4.1.min.js"></script>
+<script src="__ADMINJS__/parmies-ajax.js"></script>
+<script src="__ADMINJS__/layui/layui.js"></script>
+<script>
+	 //获取windows高度并赋值
+	 var h = $(window).height() -42;
+	$(document).ready(function(){
+		$('.contbox').css('height', h);
+        $('.regis-table').css('height',h-130);
+		$('body').css('overflow','hidden');
+	});
+
+    layui.use(['layer'], function(){
+        const layer = layui.layer;
+
+
+        var action = {
+            // 新增概率用户
+            addProBtn:function(){
+                const str = `<tr>
+                            <td>概率：
+                                <input type="hidden" name="id[]">
+                                <input type="text" class="intxt" name="probability[]" style="width:30px">
+                                <input type="hidden" class="intxt" name="def_num[]">
+                            </td>
+                            <td>身份证：<input type="text" class="intxt" name="id_card[]" maxlength="18" style="width:175px;"></td>
+                            <td><input type="text" name="name[]" class="intxt" style="width:70px"></td>
+                            <td><a href="javascript:;" class="inbtn layer-btn" data-method="closeBtn">✘</a></td>
+                        </tr>`;
+                $('.regis-table .b .myProForm table').append(str);
+            },
+             // 新增内定用户
+             addDefBtn:function(){
+                const str = `<tr>
+                            <td>内定：
+                                <input type="hidden" name="id[]">
+                                <input type="text" class="intxt" name="probability[]" value="内定" style="width:30px">
+                                <input type="text" class="intxt" name="def_num[]" style="width: 20px;">
+                            </td>
+                            <td>身份证：<input type="text" class="intxt" name="id_card[]" maxlength="18" style="width:175px"></td>
+                            <td><input type="text" name="name[]" class="intxt" style="width:70px"></td>
+                            <td><a href="javascript:;" class="inbtn layer-btn" data-method="closeBtn">✘</a></td>
+                        </tr>`;
+                $('.regis-table .b .myDefForm table').append(str);
+
+             },
+            // 删除概率/内定用户
+            closeBtn:function(){
+                const msg = $(this).parent('td').siblings('td:eq(2)').children('input').val();
+                const that = $(this);
+                if(!that.data('id')){
+                    that.parents('tr').remove();
+                    return false;
+                }
+                layer.confirm(`是否确认删除 ${msg}`,function(e){
+                    if(e){
+                        layer.load();
+                        const formData = new FormData();
+                        formData.set('id',that.data('id'));
+                        parimesPost("/lottery/delProbability",formData).then(res=>{
+                            layer.closeAll('loading');
+                            if(res.status==1){
+                                layer.closeAll();
+                                layer.msg(res.Msg);
+                                that.parents('tr').remove();
+                            }else{
+                                layer.msg(res.Msg);
+                            }
+                        }).catch(e=>{layer.closeAll('loading');layer.msg(e)})
+                    }
+                })
+            },
+            // 清空数据用户
+            closrDataUser:function(){
+                layer.confirm('确定要全部清空吗?',function(e){
+                    if(e){
+                        layer.load();
+                        parimesPost("/lottery/closeUserData",new FormData()).then(function(res){
+                            layer.closeAll('loading');
+                            if(res.status==1){
+                                $('.a-list #myUserForm tr.user-tr').remove();
+                                layer.msg(res.Msg,{"icon":1});
+                            }else{
+                                layer.msg(res.Msg,{"icon":2})
+                            }
+                        }).catch(e=>{layer.closeAll('loading');layer.msg(e)})
+                    }
+                })
+            },
+            
+            // 新增数据用户
+            addDataUser:function(){
+                layer.load();
+                const formData = new FormData($('#myUserForm')[0]);
+                parimesPost("/lottery/addUserData",formData).then(res=>{
+                    layer.closeAll('loading');
+                    if(res.status==1){
+                        layer.msg('新增成功');
+                        var tr_num = $('#myUserForm tr').length-1;
+                        str = `<tr>
+                                <td>${tr_num}</td>
+                                <td>${res.Msg.username}</td>
+                                <td>${res.Msg.phone}</td>
+                                <td>${res.Msg.id_card}</td>
+                                <td>${res.Msg.profession}</td>
+                                <td>${res.Msg.unit}</td>
+                                <td><a href="javascript:;" data-id="${res.Msg.id}" data-method="delUserData" class="inbtn layer-btn">✘</a></td>
+                            </tr>`;
+                        $(this).parents('tr').before(str);
+                        $('#myUserForm')[0].reset();
+                    }else{
+                        layer.msg(res.Msg);
+                    }
+                }).catch(e=>{layer.closeAll('loading');layer.msg(e)})
+            },
+            // 展示Ecel文件选择
+            importExcel:function(){
+
+            },
+            // 删除数据用户
+            delUserData:function(){
+                const msg = $(this).parent('td').siblings('td:eq(1)').text();
+                const that = $(this);
+                layer.confirm(`是否确认删除 ${msg}`,function(e){
+                    if(e){
+                        layer.load();
+                        const formData = new FormData();
+                        formData.set('id',that.data('id'));
+                        parimesPost("/lottery/delUserData",formData).then(res=>{
+                            layer.closeAll('loading');
+                            layer.msg(res.Msg);
+                            if(res.status==1){
+                                that.parents('tr').remove();
+                            }
+                        }).catch(e=>{layer.closeAll('loading');layer.msg(e)})
+                    }
+                })
+                
+            }
+        };
+        $('.regis-table').on('click','.layer-btn',function(){
+            const method = $(this).data('method');
+            action[method]? action[method].apply(this,$(this)):'';
+        })
+
+
+        // 选择文件导入识别
+        $('.regis-table #selectExcel').change(function(){
+            const that = $(this);
+            $(this).attr('disabled','disabled');
+            layer.load();
+            const formData = new FormData();
+            const file = $(this).prop('files')[0];
+            formData.set('file',file);
+            if(!file){
+                $(this).removeAttr('disabled');
+                layer.closeAll('loading');
+                return false;
+            }
+            const reg = /^.*\.(?:xls|xlsx)$/i;
+            if(!reg.test(file.name)){
+                layer.msg('请上传 .xls 或 .xlsx文件');
+                $(this).removeAttr('disabled');
+                $(this).val('');
+                layer.closeAll('loading');
+                return false;
+            }
+            layer.msg('识别过程需较长时间等待...');
+            parimesPost("/lottery/identifyExcel",formData).then(res=>{
+                $(this).removeAttr('disabled');
+                layer.closeAll();
+                if(res.status==1){
+                    var str = '';
+                    res.Msg.forEach((element,index)=>{
+                        str +=  `<tr>
+                                <td align="center">【${index+1}】</td>
+                                <td align="center">${element.username}</td>
+                                <td align="center">${element.phone}</td>
+                                <td align="center">${element.id_card}</td>
+                                <td align="center">${element.profession}</td>
+                                <td align="center">${element.unit}</td>
+                            </tr>`;
+                    })
+                    
+                    // 展示识别内容确认导入
+                    layer.open({
+                        type: 1,
+                        title: false,//不显示标题栏
+                        closeBtn: false,
+                        area: ['800px','400px'],
+                        shade: 0.2,
+                        id: 'LAY_layuipro-1', //设定一个id，防止重复弹出
+                        btn: ['确认导入','关闭'],
+                        btnAlign: 'c',
+                        moveType: 1, //拖拽模式，0或者1
+                        content: `<div style="padding: 25px; line-height: 22px; font-weight: 300;">
+                            <table width="700" style="margin:15px 0;">
+                                <tr>
+                                    <th>序号</th>
+                                    <th>姓名</th>
+                                    <th>电话</th>
+                                    <th>身份证</th>
+                                    <th>职称</th>
+                                    <th>单位</th>
+                                </tr>
+                                ${str}
+                            </table>
+                        </div>`,
+                        btn1:function(){
+                            layer.load();
+                            parimesPost("/lottery/importExcel",new FormData()).then(res=>{
+                                if(res.status==1){
+                                    layer.closeAll();
+                                    setTimeout(function(){
+                                        location.reload();
+                                    },2000)
+                                }
+                                layer.msg(res.Msg);
+                            }).catch(e=>{layer.closeAll();layer.msg(res.Msg);})
+                        },
+                        btn2:function(layero){
+                            layer.closeAll('open');
+                        }
+
+                    });
+                }
+            }).catch(e=>{layer.closeAll('loading');layer.msg(e)})
+        })
+
+        // 保存概率用户
+        $('#myProForm #proFormButton').click(function(){
+            layer.load();
+            const formData = new FormData($('#myProForm')[0]);
+            parimesPost("/setlottery",formData).then((res)=>{
+                layer.msg(res.Msg);
+                if(res.status==1){
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+                
+            }).catch((error)=>{
+                layer.msg(error);
+            })
+            layer.closeAll('loading');
+        })
+        
+    })
+</script>
+</body>
+</html>
