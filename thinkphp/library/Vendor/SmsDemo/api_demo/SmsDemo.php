@@ -38,9 +38,9 @@ class SmsDemo {
 		$domain = "dysmsapi.aliyuncs.com";
 
 		// TODO 此处需要替换成开发者自己的AK (https://ak-console.aliyun.com/)
-		$accessKeyId = "LTAI4GKPUCWBGyBPESwqsvSj"; // AccessKeyId
+		$accessKeyId = "您的AccessKeyId"; // AccessKeyId
 
-		$accessKeySecret = "S9o6uj28Scjsh8xhj8UDxk6Yx6Wddh-111"; // AccessKeySecret
+		$accessKeySecret = "您的AccessKeySecret"; // AccessKeySecret
 
 		// 暂时不支持多Region
 		$region = "cn-hangzhou";
