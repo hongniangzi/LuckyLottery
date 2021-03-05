@@ -40,7 +40,7 @@ class SmsDemo {
 		// TODO 此处需要替换成开发者自己的AK (https://ak-console.aliyun.com/)
 		$accessKeyId = "LTAI4GKPUCWBGyBPESwqsvSj"; // AccessKeyId
 
-		$accessKeySecret = "S9o6uj28Scjsh8xhj8UDxk6Yx6Wddh"; // AccessKeySecret
+		$accessKeySecret = "S9o6uj28Scjsh8xhj8UDxk6Yx6Wddh-111"; // AccessKeySecret
 
 		// 暂时不支持多Region
 		$region = "cn-hangzhou";
